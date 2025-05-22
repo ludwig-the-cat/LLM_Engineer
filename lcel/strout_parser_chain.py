@@ -43,4 +43,4 @@ response = chain.invoke({
 })
 
 # Проверка типа результата — теперь это строка, а не AIMessage
-print(response)        # Сам ответ от модели
+print(response)  # Сам ответ от модели
