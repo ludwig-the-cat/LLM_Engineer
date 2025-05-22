@@ -2,21 +2,22 @@ from langchain_core.prompts import (SystemMessagePromptTemplate,
                                     HumanMessagePromptTemplate,
                                     PromptTemplate,
                                     ChatPromptTemplate)
-from langchain_ollama import ChatOllama
 from tools.options import BaseOptions
+from langchain_ollama import ChatOllama
+
 
 llm = ChatOllama(base_url=BaseOptions.base_url, model=BaseOptions.model)
 
-# Формируем шаблоны системного и пользовательского сообщения
 question = HumanMessagePromptTemplate.from_template('tell about the {topics} in {points} points')
 system = SystemMessagePromptTemplate.from_template('You are {school} teacher. You answer in short sentences')
 
-# Формируем запрос
 messages = [system, question]
-
-# Формируем шаблон запроса в ollama
 template = ChatPromptTemplate(messages)
 
-full_question = template.invoke({'school': 'grim', 'topics': 'night', 'points': 5})
-response = llm.invoke(full_question)
+# Создаем цепочку шаблон -> llm
+chain = template.pipe(llm) # или chain = template | llm
+response = chain.invoke({'topics': 'solar system', 'points': 7, 'school': 'conservative'})
+
 print(response.content)
+
+

@@ -3,3 +3,4 @@
 data
 .idea
 tools/__pycache__/
+./__pycache__/
