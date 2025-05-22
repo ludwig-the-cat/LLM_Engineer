@@ -2,7 +2,6 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 from tools.options import BaseOptions
 
-
 # Применение langchain системный и пользовательский промт
 llm = ChatOllama(base_url=BaseOptions.base_url, model=BaseOptions.model)
 question = HumanMessage('tell about the earth in 5 points')
