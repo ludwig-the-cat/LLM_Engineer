@@ -4,66 +4,61 @@ from langchain_core.prompts import (
     HumanMessagePromptTemplate,
     ChatPromptTemplate
 )
+from langchain_core.runnables import RunnableParallel
 from langchain_ollama import ChatOllama
 from tools.options import base_url, model
 
-# Инициализируем модель Ollama с базовым URL и моделью из настроек
+# Инициализация модели Ollama с настройками
 llm = ChatOllama(base_url=base_url, model=model)
 
-# Системный шаблон: задаёт роль модели (учитель с определённым стилем)
+# Системный шаблон — задаёт стиль общения
 system = SystemMessagePromptTemplate.from_template(
-    'You are {school} teacher. You answer in short sentences'
+    'You are {school} teacher. You answer in short sentences.'
 )
 
-# --- Цепочка 1: Факты ---
+# --- Цепочка 1: Генерация фактов ---
 
-# Шаблон для запроса фактов — с параметрами темы и количества пунктов
-question = HumanMessagePromptTemplate.from_template(
-    'tell about the {topics} in {points} points'
+# Шаблон запроса для фактов
+fact_question = HumanMessagePromptTemplate.from_template(
+    'Tell about the {topics} in {points} points.'
 )
 
-# Сообщения для цепочки: system + пользовательский шаблон
-messages = [system, question]
+# Формируем промпт
+fact_prompt = ChatPromptTemplate.from_messages([system, fact_question])
 
-# Формируем полный чат-промпт
-template = ChatPromptTemplate(messages)
-
-# Цепочка: шаблон → модель → парсер (возвращает строку)
-fact_chain = template.pipe(llm).pipe(StrOutputParser())
-
-# Вызываем цепочку с конкретными параметрами
-fact_output = fact_chain.invoke({
-    "school": "elementary",
-    "topics": "history of Ireland",
-    "points": 5
-})
-
-# Выводим результат по фактам
-print(fact_output)
+# Создаём цепочку: промпт → модель → парсер строки
+fact_chain = fact_prompt | llm | StrOutputParser()
 
 
-# --- Цепочка 2: Стихотворение ---
+# --- Цепочка 2: Генерация стихотворения ---
 
-# Шаблон пользовательского сообщения — генерация стихотворения с заданным числом предложений
+# Шаблон запроса для стихотворения
 poem_question = HumanMessagePromptTemplate.from_template(
-    'write a poem on {topics} in {sentences}'
+    'Write a poem on {topics} in {sentences} sentences.'
 )
 
-# Сообщения: system + новый пользовательский шаблон
-messages = [system, poem_question]
+# Формируем промпт
+poem_prompt = ChatPromptTemplate.from_messages([system, poem_question])
 
-# Новый чат-промпт для стихотворения
-template = ChatPromptTemplate(messages)
+# Создаём цепочку: промпт → модель → парсер строки
+poem_chain = poem_prompt | llm | StrOutputParser()
 
-# Цепочка: шаблон → модель → парсер
-poem_chain = template.pipe(llm).pipe(StrOutputParser())
 
-# Вызываем цепочку для генерации стихотворения
-poem_output = poem_chain.invoke({
-    "school": "elementary",
-    "topics": "history of Ireland",
-    "sentences": 15
+# --- Параллельное выполнение обеих цепочек ---
+
+# Объединяем цепочки в параллельный исполняемый блок
+combined_chain = RunnableParallel(fact=fact_chain, poem=poem_chain)
+
+# Выполняем обе цепочки с заданными параметрами
+result = combined_chain.invoke({
+    'school': 'elementary',
+    'topics': 'History of Iceland',
+    'points': 5,
+    'sentences': 15
 })
 
-# Выводим результат — стихотворение
-print(poem_output)
+# Вывод результата
+print("FACTS:\n")
+print(result['fact'])
+print("\nPOEM:\n")
+print(result['poem'])
