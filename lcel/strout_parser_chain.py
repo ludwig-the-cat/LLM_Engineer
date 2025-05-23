@@ -33,7 +33,7 @@ template = ChatPromptTemplate(messages)
 
 # Создание цепочки: шаблон → модель → парсер
 chain = template.pipe(llm).pipe(StrOutputParser())
-# Альтернатива: chain = template | llm | StrOutputParser()
+# Альтернатива: chain_ = template | llm | StrOutputParser()
 
 # Подставляем значения в шаблон и вызываем цепочку
 response = chain.invoke({
