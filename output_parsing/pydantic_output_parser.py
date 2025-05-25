@@ -4,8 +4,6 @@ from tools.options import base_url, model
 
 # Импорт шаблонов сообщений и Pydantic парсера
 from langchain_core.prompts import (
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
     PromptTemplate
 )
 from langchain_core.output_parsers import PydanticOutputParser
