@@ -2,7 +2,7 @@ ollama
 chromadb
 pdfplumber 
 langchain
-langchain-core
+langchain-core~=0.3.60
 langchain-ollama
 langchain-community
 langchain_text_splitters
@@ -12,3 +12,4 @@ fastembed
 pikepdf
 sentence-transformers
 elevenlabs
+pydantic~=2.11.4
